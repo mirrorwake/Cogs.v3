@@ -266,9 +266,9 @@ class WeeedBot(commands.Cog):
         else:
             anchor_msg = ctx.message
         # Get the specified number of messages using ctx.history()
-        messages = await ctx.history(before=anchor_msg,
-                                     limit=count,
-                                     oldest_first=False).flatten()
+        messages = [msg async for msg in ctx.history(before=anchor_msg,
+                                                      limit=count,
+                                                      oldest_first=False)]
         messages.reverse()
         # Again, if given a message ID, we need to get the history but also
         # add the message with the ID that was passed and, since we're using
@@ -336,7 +336,8 @@ class WeeedBot(commands.Cog):
                                     )
             # Now we find out how tall the left side text is so we can scale
             # the chars properly beneath it.
-            (_, left_text_height) = draw.multiline_textsize(left_text, font=font)
+            left_text_bbox = draw.multiline_textbbox((0, 0), left_text, font=font)
+            left_text_height = left_text_bbox[3] - left_text_bbox[1]
             # We also need to calculate the right side text height because we
             # have the two chars scaled to be as tall as the space left beneath
             # both of the rendered text blocks
@@ -351,7 +352,9 @@ class WeeedBot(commands.Cog):
                     )
                 # left side buffer is rendered text width + text_buffer and find
                 # the difference between that and panel_width
-                (right_text_width, right_text_height) = draw.multiline_textsize(right_text, font=font)
+                right_text_bbox = draw.multiline_textbbox((0, 0), right_text, font=font)
+                right_text_width = right_text_bbox[2] - right_text_bbox[0]
+                right_text_height = right_text_bbox[3] - right_text_bbox[1]
             # Left side character time
             # We want to thumbnail the character to fit between the bottom of
             # the left text and the bottom of the panel, taking into account

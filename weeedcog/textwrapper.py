@@ -29,16 +29,16 @@ class TextWrapper(object):
             )
         )
 
-        self.space_width = self.draw.textsize(
+        self.space_width = self.draw.textlength(
             text=' ',
             font=self.font
-        )[0]
+        )
 
     def get_text_width(self, text):
-        return self.draw.textsize(
+        return self.draw.textlength(
             text=text,
             font=self.font
-        )[0]
+        )
 
     def wrapped_text(self):
         wrapped_lines = []
