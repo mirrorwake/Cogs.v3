@@ -2,7 +2,7 @@ import re
 from io import BytesIO
 from os import listdir
 from typing import List
-from random import shuffle
+from random import choice, shuffle
 import discord
 from redbot.core import commands, Config, checks
 from redbot.core.data_manager import bundled_data_path
@@ -63,13 +63,16 @@ class WeeedBot(commands.Cog):
 
     @wset.command()
     async def background_image(self, ctx, filename: str = None):
-        """Changes the background to use for the comics, or "list"."""
+        """Changes the background to use for the comics, or "list", or "random"."""
         if not filename:
             current_bg = await self.config.guild(ctx.guild).background_image()
             await ctx.send(f"background_image is currently `{current_bg}` for this guild.")
         elif filename == "list":
             files = listdir(f"{self.datapath}/background")
             await ctx.send(f"backgrounds: {files}")
+        elif filename == "random":
+            await self.config.guild(ctx.guild).background_image.set("random")
+            await ctx.send("background_image for this guild is now set to pick a random background for each comic.")
         else:
             files = listdir(f"{self.datapath}/background")
             if filename in files:
@@ -233,6 +236,9 @@ class WeeedBot(commands.Cog):
         max_messages = await server_cfg.max_messages()
         background_image = await server_cfg.background_image()
         comic_text = await server_cfg.comic_text()
+
+        if background_image == "random":
+            background_image = choice(listdir(f"{self.datapath}/background"))
 
         if count > max_messages:
             await ctx.send("Whoa there, shitlord! You expect me to parse _All That Shit_ by _you_?")
